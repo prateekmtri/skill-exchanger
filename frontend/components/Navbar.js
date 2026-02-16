@@ -32,7 +32,7 @@ export default function Navbar() {
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                fetch(`https://skill-exchanger-backend-3.onrender.com/api/users/${decoded.id}`)
+                fetch(`https://skill-exchanger.onrender.com/api/users/${decoded.id}`)
                     .then(res => {
                         if (!res.ok) {
                             localStorage.removeItem('skill-token');

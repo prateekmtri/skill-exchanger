@@ -45,7 +45,7 @@ const BioWithReadMore = ({ text, maxLength = 120 }) => {
 
 
 const UserCard = ({ user, onSkillClick, unreadCount }) => {
-    const BACKEND_URL = 'https://skill-exchanger-backend-3.onrender.com';
+    const BACKEND_URL = 'https://skill-exchanger.onrender.com';
     const router = useRouter();
     const imagePath = user.profilePicture ? user.profilePicture.replace(/\\/g, '/') : null;
     const imageUrl = imagePath ? `${BACKEND_URL}/${imagePath}` : null;
@@ -132,7 +132,7 @@ const UserListPage = () => {
         try {
           const decoded = jwtDecode(token);
           const userId = decoded.id;
-          const res = await fetch(`https://skill-exchanger-backend-3.onrender.com/api/users/${userId}`);
+          const res = await fetch(`https://skill-exchanger.onrender.com/api/users/${userId}`);
           if (res.ok) {
             const data = await res.json();
             setLoggedInUser(data.data.user);
@@ -157,7 +157,7 @@ const UserListPage = () => {
         // setLoading(true) yahan dobara call karne ki zaroorat nahi, 
         // kyunki initial state pehle se hi true hai
         setError(null);
-        const res = await fetch('https://skill-exchanger-backend-3.onrender.com/api/users');
+        const res = await fetch('https://skill-exchanger.onrender.com/api/users');
         if (!res.ok) throw new Error('Failed to fetch users.');
         const data = await res.json();
         if (data.status === 'success') {

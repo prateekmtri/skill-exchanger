@@ -1,0 +1,23 @@
+# Netlify Build Configuration for Next.js 15
+
+[build]
+  # Agar aapka package.json root mein hai toh command yahi rahega
+  command = "npm run build"
+  
+  # Next.js build output hamesha .next folder mein jata hai
+  publish = ".next"
+
+[[plugins]]
+  # Next.js 15 ke liye ye plugin compulsory hai, Netlify ise auto-manage karega
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  # Yahan hum build time settings define karte hain
+  NODE_VERSION = "20"
+
+# Agar aap API routes use kar rahe hain toh redirects ki zarurat pad sakti hai
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false

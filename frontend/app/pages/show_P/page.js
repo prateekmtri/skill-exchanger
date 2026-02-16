@@ -54,7 +54,7 @@ const UserProfilePage = () => {
   const fetchUserData = async (id) => {
     try {
       setLoading(true);
-      const response = await fetch(`https://skill-exchanger-backend-3.onrender.com/api/users/${id}`);
+      const response = await fetch(`https://skill-exchanger.onrender.com/api/users/${id}`);
       const data = await response.json();
       
       if (data.status === 'success') {
@@ -131,7 +131,7 @@ const UserProfilePage = () => {
       // Token ko `localStorage` se get karein
       const token = localStorage.getItem('skill-token');
 
-      const response = await fetch(`https://skill-exchanger-backend-3.onrender.com/api/users/${userId}`, {
+      const response = await fetch(`https://skill-exchanger.onrender.com/api/users/${userId}`, {
         method: 'PATCH',
         // `headers` mein Authorization token add karein
         // NOTE: Jab FormData bhejte hain, 'Content-Type' manually set nahi karte
@@ -266,7 +266,7 @@ const UserProfilePage = () => {
                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
                   {(uploadedImage || userData.profilePicture) ? (
                     <img 
-                      src={uploadedImage || `https://skill-exchanger-backend-3.onrender.com/${userData.profilePicture.replace(/\\/g, '/')}`} 
+                      src={uploadedImage || `https://skill-exchanger.onrender.com/${userData.profilePicture.replace(/\\/g, '/')}`} 
                       alt="Profile" 
                       className="w-full h-full object-cover" 
                     />

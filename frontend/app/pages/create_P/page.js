@@ -137,7 +137,7 @@ const ProfileCreationPage = () => {
     });
 
     try {
-      const res = await fetch('https://skill-exchanger-backend-3.onrender.com/api/users/profile', {
+      const res = await fetch('https://skill-exchanger.onrender.com/api/users/profile', {
         method: 'POST',
         body: formDataToSend,
       });

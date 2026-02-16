@@ -57,7 +57,7 @@ export default function AccountSettingsPage() {
         throw new Error('Invalid token structure.');
       }
 
-      const res = await fetch(`https://skill-exchanger-backend-3.onrender.com/api/users/${userId}`, {
+      const res = await fetch(`https://skill-exchanger.onrender.com/api/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

@@ -23,7 +23,7 @@ export const SocketProvider = ({ children }) => {
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                fetch(`https://skill-exchanger-backend-3.onrender.com/api/users/${decoded.id}`)
+                fetch(`https://skill-exchanger.onrender.com/api/users/${decoded.id}`)
                     .then(res => res.json())
                     .then(data => {
                         if (data.status === 'success') {
@@ -42,7 +42,7 @@ export const SocketProvider = ({ children }) => {
         if (loggedInUser) {
             console.log('Connecting socket for user:', loggedInUser._id);
             
-            const newSocket = io('https://skill-exchanger-backend-3.onrender.com', {
+            const newSocket = io('https://skill-exchanger.onrender.com', {
                 transports: ['websocket', 'polling'],
                 timeout: 20000,
                 forceNew: false,
