@@ -1,4 +1,4 @@
-// frontend/context/SocketContext.js (Final Corrected Code)
+
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
