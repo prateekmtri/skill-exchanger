@@ -63,7 +63,7 @@ const ChatPage = () => {
             
             setIsLoading(false);
 
-            newSocket = io('https://skill-exchanger-backend-3.onrender.com');
+            newSocket = io('https://skill-exchanger.onrender.com');
             setSocket(newSocket);
 
             newSocket.on('connect', () => {
