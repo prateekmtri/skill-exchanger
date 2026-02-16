@@ -30,17 +30,16 @@ jobs:
         docker build -t skill-exchanger-backend ./backend
 
     - name: Build Frontend Image
-      # Yahan hum Build-time environment variables pass kar rahe hain
-      # Taaki Next.js build ke waqt variables ki wajah se crash na ho
+      # Build-time par dummy variables pass kar rahe hain taaki Next.js build crash na ho
       run: |
-        docker build -t skill-exchanger-frontend ./frontend \
+        docker build \
           --build-arg GROQ_API_KEY="dummy_key_for_ci" \
-          --build-arg NEXT_PUBLIC_API_BASE_URL="http://localhost:5000"
+          --build-arg NEXT_PUBLIC_API_BASE_URL="https://skill-exchanger.onrender.com" \
+          -t skill-exchanger-frontend ./frontend
       env:
-        # Kuch cases mein env flag bhi zaroori hota hai
         GROQ_API_KEY: "dummy_key_for_ci"
-        NEXT_PUBLIC_API_BASE_URL: "http://localhost:5000"
+        NEXT_PUBLIC_API_BASE_URL: "https://skill-exchanger.onrender.com"
 
     - name: Run Success Message
       run: |
-        echo "Docker images for both Frontend and Backend built successfully!"
+        echo "✅ CI Build Successful! Both Docker images are valid."

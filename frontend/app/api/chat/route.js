@@ -3,7 +3,7 @@ import Groq from 'groq-sdk';
 
 // Groq client initialize karein (.env se API key lega)
 const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
+    apiKey: process.env.GROQ_API_KEY || "dummy_key_to_pass_build", 
 });
 
 // 1. Instructions (System Prompt)
