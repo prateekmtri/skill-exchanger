@@ -1,7 +1,8 @@
 // socket/socket.js (Supercharged Version)
 
 const Message = require('../model/message');
-const User = require('../model/User'); // User model ko import karein
+const User = require('../model/User');
+const { sendMessageNotification } = require('../controllers/chatController'); // ✅ Import
 
 const userSocketMap = new Map(); // key: userId, value: socket.id
 
@@ -21,11 +22,14 @@ const socketHandler = (io) => {
         const newMessage = new Message({ senderId, receiverId, content, status: messageStatus });
         await newMessage.save();
         
-        // --- NAYA LOGIC: Agar receiver offline hai, toh database mein unread count badhayein ---
+        // Agar receiver offline hai, toh database mein unread count badhayein
         if (!receiverSocketId) {
             await User.findByIdAndUpdate(receiverId, {
-                $inc: { [`unreadMessages.${senderId}`]: 1 } // count badhayein
+                $inc: { [`unreadMessages.${senderId}`]: 1 }
             });
+
+            // ✅ Sirf yeh 1 line add ki hai — offline hai to email bhejo
+            await sendMessageNotification({ senderId, receiverId, content });
         }
 
         if (receiverSocketId) {
@@ -46,9 +50,9 @@ const socketHandler = (io) => {
                 { $set: { status: 'seen' } }
             );
 
-            // --- NAYA LOGIC: Database se unread count ko clear karein ---
+            // Database se unread count ko clear karein
             await User.findByIdAndUpdate(senderId, {
-                $unset: { [`unreadMessages.${receiverId}`]: 1 } // count ko object se hata dein
+                $unset: { [`unreadMessages.${receiverId}`]: 1 }
             });
 
             const senderSocketId = userSocketMap.get(senderId);

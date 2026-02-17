@@ -48,8 +48,8 @@ const ChatPage = () => {
             const decoded = jwtDecode(token);
             setLoggedInUser(decoded);
             const [userRes, msgRes] = await Promise.all([
-                fetch(`https://skill-exchanger.onrender.com/api/users/${receiverId}`),
-                fetch(`https://skill-exchanger.onrender.com/api/chat/${receiverId}`, {
+                fetch(`http://localhost:5000/api/users/${receiverId}`),
+                fetch(`http://localhost:5000/api/chat/${receiverId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
             ]);
@@ -63,7 +63,7 @@ const ChatPage = () => {
             
             setIsLoading(false);
 
-            newSocket = io('https://skill-exchanger.onrender.com');
+            newSocket = io('http://localhost:5000');
             setSocket(newSocket);
 
             newSocket.on('connect', () => {
