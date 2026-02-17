@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/UserControllers');
-const upload = require('../middleware/uplpad'); // Maan lete hain ki aapka upload middleware yahan hai
-const { protect } = require('../middleware/auth'); // protect middleware ko import karein
+const upload = require('../middleware/uplpad');
+const { protect } = require('../middleware/auth');
 
 // Public Routes (Bina login ke chalne waale)
 router.post('/users/login', userController.loginUser);
 router.post('/users/profile', upload.single('profilePicture'), userController.createProfile);
+router.post('/users/verify-otp', userController.verifyOtp); // ✅ OTP Verify Route
 router.get('/users', userController.getAllUsers);
 router.get('/users/:id', userController.getProfile);
 

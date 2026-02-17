@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // bcryptjs use karna aam taur par behtar rehta hai
+const bcrypt = require('bcryptjs');
 
 const skillSchema = new mongoose.Schema({
   name: String,
@@ -83,13 +83,26 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  // --- YEH NAYA FIELD UNREAD MESSAGES KE LIYE ZAROORI HAI ---
-  // Yeh object { senderId: count } format mein data store karega
   unreadMessages: {
-      type: Map,
-      of: Number,
-      default: {}
+    type: Map,
+    of: Number,
+    default: {}
+  },
+
+  // ✅ OTP Verification Fields
+  otp: {
+    type: String,
+    default: null
+  },
+  otpExpiry: {
+    type: Date,
+    default: null
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
   }
+
 }, {
   timestamps: true
 });
