@@ -104,7 +104,7 @@ exports.createProfile = async (req, res) => {
 
     // ✅ OTP Generate karo
     const otp = generateOTP();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+    const otpExpiry = Date.now() + 10 * 60 * 1000; // 10 min (timestamp format)
 
     // ✅ Memory me temporarily store karo (database me nahi)
     otpStore[email] = { otp, otpExpiry, formData };
@@ -157,8 +157,8 @@ exports.verifyOtp = async (req, res) => {
       return res.status(400).json({ status: 'fail', message: 'Invalid OTP. Please try again.' });
     }
 
-    // ✅ Expiry check
-    if (stored.otpExpiry < new Date()) {
+    // ✅ Expiry check (FIXED - compare timestamps)
+    if (Date.now() > stored.otpExpiry) {
       delete otpStore[email]; // Clean up
       return res.status(400).json({ status: 'fail', message: 'OTP expired. Please signup again.' });
     }
