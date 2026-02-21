@@ -15,6 +15,9 @@ const UserProfilePage = () => {
   const [userId, setUserId] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Environment Variable for API Base URL
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
   const predefinedSkills = [
     'Programming', 'Web Development', 'Mobile Development', 'Data Science', 'Machine Learning',
     'UI/UX Design', 'Graphic Design', 'Digital Marketing', 'Content Writing', 'Photography',
@@ -54,7 +57,7 @@ const UserProfilePage = () => {
   const fetchUserData = async (id) => {
     try {
       setLoading(true);
-      const response = await fetch(`https://skill-exchanger.onrender.com/api/users/${id}`);
+      const response = await fetch(`${API_BASE_URL}/api/users/${id}`);
       const data = await response.json();
       
       if (data.status === 'success') {
@@ -127,14 +130,10 @@ const UserProfilePage = () => {
         }
       });
       
-      // --- YAHAN FINAL FIX HAI ---
-      // Token ko `localStorage` se get karein
       const token = localStorage.getItem('skill-token');
 
-      const response = await fetch(`https://skill-exchanger.onrender.com/api/users/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
         method: 'PATCH',
-        // `headers` mein Authorization token add karein
-        // NOTE: Jab FormData bhejte hain, 'Content-Type' manually set nahi karte
         headers: {
             'Authorization': `Bearer ${token}`
         },
@@ -146,7 +145,7 @@ const UserProfilePage = () => {
       if (data.status === 'success') {
         setUserData(data.data.user);
         setEditMode(false);
-        setUploadedImage(null); // Uploaded image preview ko clear karein
+        setUploadedImage(null);
         setMessage('Profile updated successfully!');
         setTimeout(() => setMessage(''), 3000);
       } else {
@@ -193,17 +192,6 @@ const UserProfilePage = () => {
               Go to Login
             </motion.div>
           </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!userData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">User Not Found</h2>
-          <p className="text-gray-600">The user profile could not be loaded.</p>
         </div>
       </div>
     );
@@ -266,7 +254,7 @@ const UserProfilePage = () => {
                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
                   {(uploadedImage || userData.profilePicture) ? (
                     <img 
-                      src={uploadedImage || `https://skill-exchanger.onrender.com/${userData.profilePicture.replace(/\\/g, '/')}`} 
+                      src={uploadedImage || `${API_BASE_URL}/${userData.profilePicture.replace(/\\/g, '/')}`} 
                       alt="Profile" 
                       className="w-full h-full object-cover" 
                     />
