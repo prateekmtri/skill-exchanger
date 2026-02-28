@@ -45,7 +45,8 @@ const BioWithReadMore = ({ text, maxLength = 120 }) => {
 
 
 const UserCard = ({ user, onSkillClick, unreadCount }) => {
-    const BACKEND_URL = 'https://skill-exchanger.onrender.com';
+    // --- YAHAN FIX KIYA GAYA HAI ---
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const router = useRouter();
     const imagePath = user.profilePicture ? user.profilePicture.replace(/\\/g, '/') : null;
     const imageUrl = imagePath ? `${BACKEND_URL}/${imagePath}` : null;
@@ -132,7 +133,10 @@ const UserListPage = () => {
         try {
           const decoded = jwtDecode(token);
           const userId = decoded.id;
-          const res = await fetch(`https://skill-exchanger.onrender.com/api/users/${userId}`);
+          // --- YAHAN FIX KIYA GAYA HAI ---
+          const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+          const res = await fetch(`${baseUrl}/api/users/${userId}`);
+          
           if (res.ok) {
             const data = await res.json();
             setLoggedInUser(data.data.user);
@@ -157,7 +161,10 @@ const UserListPage = () => {
         // setLoading(true) yahan dobara call karne ki zaroorat nahi, 
         // kyunki initial state pehle se hi true hai
         setError(null);
-        const res = await fetch('https://skill-exchanger.onrender.com/api/users');
+        // --- YAHAN FIX KIYA GAYA HAI ---
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+        const res = await fetch(`${baseUrl}/api/users`);
+        
         if (!res.ok) throw new Error('Failed to fetch users.');
         const data = await res.json();
         if (data.status === 'success') {
@@ -223,7 +230,15 @@ const UserListPage = () => {
         <div className="mb-8 p-4 bg-white rounded-xl shadow-md border border-gray-200 flex flex-col md:flex-row gap-4 items-center">
             <div className="relative flex-grow w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input type="text" placeholder="Search by name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" suppressHydrationWarning={true} />
+                <input 
+                  type="text" 
+                  placeholder="Search by name..." 
+                  value={searchTerm} 
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                  // --- YAHAN FIX HAI: 'text-gray-900' add kiya gaya hai ---
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900" 
+                  suppressHydrationWarning={true} 
+                />
             </div>
             {skillFilter && (
                 <div className="flex items-center gap-2">

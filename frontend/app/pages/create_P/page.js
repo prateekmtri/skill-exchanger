@@ -58,7 +58,8 @@ const OtpModal = ({ email, onVerified, onClose }) => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('https://skill-exchanger.onrender.com/api/users/verify-otp', {
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const res = await fetch(`${baseUrl}/api/users/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp: otpCode }),
@@ -301,7 +302,8 @@ const ProfileCreationPage = () => {
     });
 
     try {
-      const res = await fetch('http://localhost:5000/api/users/profile', {
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const res = await fetch(`${baseUrl}/api/users/profile`, {
         method: 'POST',
         body: formDataToSend,
       });

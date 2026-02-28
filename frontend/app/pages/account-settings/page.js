@@ -57,7 +57,9 @@ export default function AccountSettingsPage() {
         throw new Error('Invalid token structure.');
       }
 
-      const res = await fetch(`https://skill-exchanger.onrender.com/api/users/${userId}`, {
+      // Hardcoded URL ko hata kar NEXT_PUBLIC_API_BASE_URL use kiya hai
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const res = await fetch(`${baseUrl}/api/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

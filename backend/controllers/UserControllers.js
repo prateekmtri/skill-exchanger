@@ -4,13 +4,18 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
-// ✅ Gmail Transporter
+// ✅ BULLETPROOF Gmail Transporter (Render Timeout Fix)
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465, // Cloud servers ke liye 465 best hai
+  secure: true, 
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS,
   },
+  tls: {
+    rejectUnauthorized: false // Render par SSL/TLS error ya hang hone se rokta hai
+  }
 });
 
 // ✅ Temporary OTP Store (account save nahi hoga jab tak OTP verify na ho)
@@ -109,28 +114,38 @@ exports.createProfile = async (req, res) => {
     // ✅ Memory me temporarily store karo (database me nahi)
     otpStore[email] = { otp, otpExpiry, formData };
 
-    // ✅ OTP Email bhejo
-    await transporter.sendMail({
-      from: `"Skill Exchanger" <${process.env.GMAIL_USER}>`,
-      to: email,
-      subject: 'Your OTP Verification Code',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 400px; margin: auto; padding: 30px; border: 1px solid #eee; border-radius: 10px;">
-          <h2 style="color: #4F46E5;">Hello ${formData.fullName}! 👋</h2>
-          <p style="color: #555;">Your OTP verification code is:</p>
-          <div style="text-align: center; margin: 20px 0;">
-            <span style="font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #4F46E5;">${otp}</span>
+    // ✅ OTP Email bhejo (Isme alag se try-catch lagaya hai Timeout se bachne ke liye)
+    try {
+      await transporter.sendMail({
+        from: `"Skill Exchanger" <${process.env.GMAIL_USER}>`,
+        to: email,
+        subject: 'Your OTP Verification Code',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 400px; margin: auto; padding: 30px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #4F46E5;">Hello ${formData.fullName}! 👋</h2>
+            <p style="color: #555;">Your OTP verification code is:</p>
+            <div style="text-align: center; margin: 20px 0;">
+              <span style="font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #4F46E5;">${otp}</span>
+            </div>
+            <p style="color: #555;">This code is valid for <b>10 minutes</b>.</p>
+            <p style="color: #999; font-size: 12px;">If you did not create an account, please ignore this email.</p>
           </div>
-          <p style="color: #555;">This code is valid for <b>10 minutes</b>.</p>
-          <p style="color: #999; font-size: 12px;">If you did not create an account, please ignore this email.</p>
-        </div>
-      `,
-    });
+        `,
+      });
 
-    res.status(200).json({
-      status: 'success',
-      message: 'OTP sent to your email. Please verify to complete registration.',
-    });
+      // Email successfully chala gaya
+      return res.status(200).json({
+        status: 'success',
+        message: 'OTP sent to your email. Please verify to complete registration.',
+      });
+
+    } catch (emailError) {
+      console.error("Nodemailer Email Error:", emailError);
+      // Agar email bhejne me error aaye, toh turant fail response bhejo aur timeout mat hone do
+      delete otpStore[email]; // Memory se data hata do kyunki OTP fail ho gaya
+      return res.status(500).json({ status: 'error', message: 'Could not send OTP email. Please check backend email configuration.' });
+    }
+
   } catch (error) {
     res.status(400).json({ status: 'fail', message: error.message });
   }

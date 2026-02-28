@@ -47,12 +47,17 @@ const ChatPage = () => {
         try {
             const decoded = jwtDecode(token);
             setLoggedInUser(decoded);
+            
+            // --- BASE URL SETUP ---
+            const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
             const [userRes, msgRes] = await Promise.all([
-                fetch(`https://skill-exchanger.onrender.com/api/users/${receiverId}`),
-                fetch(`https://skill-exchanger.onrender.com/api/chat/${receiverId}`, {
+                fetch(`${baseUrl}/api/users/${receiverId}`),
+                fetch(`${baseUrl}/api/chat/${receiverId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
             ]);
+            
             if (!userRes.ok || !msgRes.ok) throw new Error("Failed to fetch initial chat data.");
             
             const userData = await userRes.json();
@@ -63,7 +68,8 @@ const ChatPage = () => {
             
             setIsLoading(false);
 
-            newSocket = io('https://skill-exchanger.onrender.com');
+            // --- SOCKET CONNECTION WITH BASE URL ---
+            newSocket = io(baseUrl);
             setSocket(newSocket);
 
             newSocket.on('connect', () => {
@@ -189,7 +195,6 @@ const ChatPage = () => {
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder={isConnected ? "Type a message..." : "Connecting..."}
             disabled={!isConnected}
-            // --- YAHAN FIX HAI: 'text-gray-900' add kiya gaya hai ---
             className="flex-1 w-full px-4 py-3 bg-gray-100 text-gray-900 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed" 
           />
           <motion.button 
