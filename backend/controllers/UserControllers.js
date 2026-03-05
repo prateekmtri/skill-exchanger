@@ -4,11 +4,11 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
-// ✅ BULLETPROOF Gmail Transporter (Render Timeout Fix)
+// ✅ UPDATED Transporter (Port 587 for Render Fix)
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465, // Cloud servers ke liye 465 best hai
-  secure: true, 
+  port: 587, // 465 ki jagah 587 use kar rahe hain taaki Timeout block na ho
+  secure: false, // 587 ke liye isko hamesha false rakhna hota hai (STARTTLS ke liye)
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS,
