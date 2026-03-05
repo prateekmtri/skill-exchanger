@@ -4,18 +4,20 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
-// ✅ UPDATED Transporter (Port 587 for Render Fix)
+// ✅ FINAL BULLETPROOF Transporter (IPv4 Force for Render)
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 587, // 465 ki jagah 587 use kar rahe hain taaki Timeout block na ho
-  secure: false, // 587 ke liye isko hamesha false rakhna hota hai (STARTTLS ke liye)
+  port: 465,
+  secure: true, 
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS,
   },
   tls: {
-    rejectUnauthorized: false // Render par SSL/TLS error ya hang hone se rokta hai
-  }
+    rejectUnauthorized: false
+  },
+  // 👇 YAHAN HAI ASLI JADU (Yeh Render ko hang hone se rokega)
+  family: 4 
 });
 
 // ✅ Temporary OTP Store (account save nahi hoga jab tak OTP verify na ho)
