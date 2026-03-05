@@ -2,23 +2,10 @@ const User = require('../model/User');
 const fs = require('fs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// ✅ FINAL BULLETPROOF Transporter (IPv4 Force for Render)
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, 
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false
-  },
-  // 👇 YAHAN HAI ASLI JADU (Yeh Render ko hang hone se rokega)
-  family: 4 
-});
+// ✅ Resend Client (SMTP nahi, HTTP API use karta hai — Render pe perfectly kaam karta hai)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ✅ Temporary OTP Store (account save nahi hoga jab tak OTP verify na ho)
 // { email: { otp, otpExpiry, formData } }
@@ -116,10 +103,10 @@ exports.createProfile = async (req, res) => {
     // ✅ Memory me temporarily store karo (database me nahi)
     otpStore[email] = { otp, otpExpiry, formData };
 
-    // ✅ OTP Email bhejo (Isme alag se try-catch lagaya hai Timeout se bachne ke liye)
+    // ✅ Resend se OTP Email bhejo
     try {
-      await transporter.sendMail({
-        from: `"Skill Exchanger" <${process.env.GMAIL_USER}>`,
+      const { error: emailError } = await resend.emails.send({
+        from: 'Skill Exchanger <onboarding@resend.dev>', // ⚠️ Apna domain add karne ke baad yahan change karo: noreply@yourdomain.com
         to: email,
         subject: 'Your OTP Verification Code',
         html: `
@@ -135,17 +122,21 @@ exports.createProfile = async (req, res) => {
         `,
       });
 
-      // Email successfully chala gaya
+      // ✅ Resend ne error diya to catch karo
+      if (emailError) {
+        throw emailError;
+      }
+
+      // ✅ Email successfully chala gaya
       return res.status(200).json({
         status: 'success',
         message: 'OTP sent to your email. Please verify to complete registration.',
       });
 
-    } catch (emailError) {
-      console.error("Nodemailer Email Error:", emailError);
-      // Agar email bhejne me error aaye, toh turant fail response bhejo aur timeout mat hone do
+    } catch (emailErr) {
+      console.error("Resend Email Error:", emailErr);
       delete otpStore[email]; // Memory se data hata do kyunki OTP fail ho gaya
-      return res.status(500).json({ status: 'error', message: 'Could not send OTP email. Please check backend email configuration.' });
+      return res.status(500).json({ status: 'error', message: 'Could not send OTP email. Please check RESEND_API_KEY in environment variables.' });
     }
 
   } catch (error) {
@@ -174,7 +165,7 @@ exports.verifyOtp = async (req, res) => {
       return res.status(400).json({ status: 'fail', message: 'Invalid OTP. Please try again.' });
     }
 
-    // ✅ Expiry check (FIXED - compare timestamps)
+    // ✅ Expiry check
     if (Date.now() > stored.otpExpiry) {
       delete otpStore[email]; // Clean up
       return res.status(400).json({ status: 'fail', message: 'OTP expired. Please signup again.' });
@@ -183,7 +174,7 @@ exports.verifyOtp = async (req, res) => {
     // ✅ OTP sahi hai — AB account save karo
     const userData = {
       ...stored.formData,
-      isVerified: true, // Seedha verified
+      isVerified: true,
     };
 
     const user = new User(userData);
