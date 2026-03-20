@@ -15,7 +15,7 @@ const UserProfilePage = () => {
   const [userId, setUserId] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Environment Variable for API Base URL
+  
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const predefinedSkills = [
