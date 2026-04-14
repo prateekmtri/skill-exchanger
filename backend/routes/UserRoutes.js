@@ -9,7 +9,6 @@ router.post('/users/login', userController.loginUser);
 
 // ✅ PEHLE profile route (specific routes hamesha :id se upar hone chahiye)
 router.post('/users/profile', upload.single('profilePicture'), userController.createProfile);
-router.post('/users/verify-otp', userController.verifyOtp);
 
 router.get('/users', userController.getAllUsers);
 

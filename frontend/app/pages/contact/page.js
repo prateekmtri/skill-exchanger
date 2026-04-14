@@ -52,20 +52,6 @@ export default function ContactPage() {
         });
     };
 
-    const creators = [
-        { 
-            name: 'Prateek Mani Tripathi', 
-            image: '/prateek.jpeg',
-            linkedin: 'https://www.linkedin.com/in/prateek-mani-tripathi-51935a259/',
-            twitter: 'https://x.com/PrateekTri20851'
-        },
-        { 
-            name: 'Ekta Verma', 
-            image: '/ekta.jpeg',
-            linkedin: 'https://www.linkedin.com/in/ekta-verma-4b9436251/',
-            twitter: 'https://x.com/EktaV1278'
-        }
-    ];
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8 relative">
             {/* --- YAHAN BACK BUTTON ADD KIYA GAYA HAI --- */}
@@ -130,21 +116,6 @@ export default function ContactPage() {
                     </motion.div>
 
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="space-y-8">
-                        <h2 className="text-2xl font-bold text-gray-800">Meet the Team</h2>
-                        <div className="space-y-6">
-                            {creators.map((creator) => (
-                                <div key={creator.name} className="flex items-center gap-4">
-                                    <img src={creator.image} alt={creator.name} className="w-16 h-16 rounded-full object-cover shadow-md" />
-                                    <div className="flex-1">
-                                        <h3 className="text-lg font-semibold text-gray-900">{creator.name}</h3>
-                                        <div className="flex items-center gap-4 mt-1">
-                                            <a href={creator.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-700"><Linkedin size={20} /></a>
-                                            <a href={creator.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-sky-500"><Twitter size={20} /></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
                         <div className="mt-6 border-t pt-6">
                              <h3 className="text-lg font-semibold text-gray-900 mb-2">Support Email</h3>
                              <a href="mailto:support@skillexchange.com" className="text-indigo-600 hover:underline">support@skillexchange.com</a>

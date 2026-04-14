@@ -1,169 +1,9 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Mail, Lock, Camera, MapPin, Phone, Brain, Sparkles, Check, ChevronRight, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { User, Mail, Lock, Camera, MapPin, Phone, Brain, Sparkles, Check, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
-// ===================== OTP MODAL =====================
-const OtpModal = ({ email, onVerified, onClose }) => {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const inputRefs = useRef([]);
-
-  useEffect(() => {
-    inputRefs.current[0]?.focus();
-  }, []);
-
-  useEffect(() => {
-    if (resendCooldown > 0) {
-      const timer = setTimeout(() => setResendCooldown(c => c - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [resendCooldown]);
-
-  const handleChange = (index, value) => {
-    if (!/^\d*$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
-    setOtp(newOtp);
-    setError('');
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e) => {
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    if (pasted.length === 6) {
-      setOtp(pasted.split(''));
-      inputRefs.current[5]?.focus();
-    }
-  };
-
-  const handleVerify = async () => {
-    const otpCode = otp.join('');
-    if (otpCode.length !== 6) {
-      setError('Please enter all 6 digits');
-      return;
-    }
-    setLoading(true);
-    setError('');
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-      const res = await fetch(`${baseUrl}/api/users/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp: otpCode }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        // Token save karo agar chahiye
-        if (data.token) localStorage.setItem('token', data.token);
-        onVerified(); // ✅ Verified! Redirect trigger karega
-      } else {
-        setError(data.message || 'Invalid OTP. Please try again.');
-        setOtp(['', '', '', '', '', '']);
-        inputRefs.current[0]?.focus();
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4"
-    >
-      <motion.div
-        initial={{ scale: 0.85, opacity: 0, y: 30 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.85, opacity: 0, y: 30 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md text-center"
-      >
-        {/* Icon */}
-        <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg">
-          <ShieldCheck className="w-10 h-10 text-white" />
-        </div>
-
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Verify Your Email</h2>
-        <p className="text-gray-500 text-sm mb-1">We sent a 6-digit OTP to</p>
-        <p className="text-blue-600 font-semibold text-sm mb-6">{email}</p>
-
-        {/* OTP Inputs */}
-        <div className="flex justify-center gap-3 mb-6" onPaste={handlePaste}>
-          {otp.map((digit, index) => (
-            <input
-              key={index}
-              ref={el => inputRefs.current[index] = el}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              value={digit}
-              onChange={e => handleChange(index, e.target.value)}
-              onKeyDown={e => handleKeyDown(index, e)}
-              className={`w-12 h-14 text-center text-xl font-bold border-2 rounded-xl transition-all outline-none
-                ${digit ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 bg-gray-50 text-gray-800'}
-                ${error ? 'border-red-400 bg-red-50' : ''}
-                focus:border-blue-500 focus:bg-blue-50`}
-            />
-          ))}
-        </div>
-
-        {/* Error */}
-        {error && (
-          <motion.p
-            initial={{ opacity: 0, y: -5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-red-500 text-sm mb-4"
-          >
-            {error}
-          </motion.p>
-        )}
-
-        {/* Verify Button */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleVerify}
-          disabled={loading || otp.join('').length !== 6}
-          className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-4"
-        >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-              </svg>
-              Verifying...
-            </span>
-          ) : 'Verify OTP ✓'}
-        </motion.button>
-
-        <p className="text-gray-400 text-xs">
-          OTP 10 minutes tak valid hai •{' '}
-          <span className="text-blue-500 cursor-pointer hover:underline" onClick={onClose}>
-            Cancel
-          </span>
-        </p>
-      </motion.div>
-    </motion.div>
-  );
-};
 
 // ===================== MAIN PAGE =====================
 const ProfileCreationPage = () => {
@@ -173,10 +13,6 @@ const ProfileCreationPage = () => {
   const [success, setSuccess] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
-
-  // ✅ OTP Modal state
-  const [showOtpModal, setShowOtpModal] = useState(false);
-  const [registeredEmail, setRegisteredEmail] = useState('');
 
   const router = useRouter();
 
@@ -201,6 +37,16 @@ const ProfileCreationPage = () => {
   });
 
   const [errors, setErrors] = useState({});
+
+  // ✅ Pre-generate particle positions on client-side only (fixes hydration error)
+  const particles = useMemo(() => {
+    return Array.from({ length: 20 }, () => ({
+      left: Math.random() * 100,
+      x: Math.random() * 100 - 50,
+      duration: Math.random() * 5 + 5,
+      delay: Math.random() * 5,
+    }));
+  }, []);
 
   const predefinedSkills = [
     'Programming', 'Web Development', 'Mobile Development', 'Data Science', 'Machine Learning',
@@ -282,7 +128,7 @@ const ProfileCreationPage = () => {
     }
   };
 
-  // ✅ SUBMIT — Pehle signup, phir OTP modal
+  // ✅ SUBMIT — Direct account create, no OTP
   const handleSubmit = async () => {
     if (!validateStep(4)) return;
     setIsSubmitting(true);
@@ -309,9 +155,9 @@ const ProfileCreationPage = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        // ✅ Signup success — OTP modal open karo
-        setRegisteredEmail(formData.email);
-        setShowOtpModal(true);
+        // ✅ Signup success — direct redirect to login
+        setSuccess(true);
+        setTimeout(() => router.push('/pages/log_in'), 2000);
       } else {
         setErrorMessage(data.message || 'Server rejected the request');
       }
@@ -321,13 +167,6 @@ const ProfileCreationPage = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // ✅ OTP Verified — Success show karo, phir redirect
-  const handleOtpVerified = () => {
-    setShowOtpModal(false);
-    setSuccess(true);
-    setTimeout(() => router.push('/pages/log_in'), 2000);
   };
 
   const containerVariants = {
@@ -553,28 +392,17 @@ const ProfileCreationPage = () => {
 
         {/* Floating particles */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          {[...Array(20)].map((_, i) => (
+          {particles.map((particle, i) => (
             <motion.div key={i} className="absolute w-2 h-2 bg-blue-200 rounded-full"
-              animate={{ y: [0, -100], x: [0, Math.random() * 100 - 50], opacity: [0, 1, 0] }}
-              transition={{ duration: Math.random() * 5 + 5, repeat: Infinity, delay: Math.random() * 5 }}
-              style={{ left: `${Math.random() * 100}%`, top: '100%' }}
+              animate={{ y: [0, -100], x: [0, particle.x], opacity: [0, 1, 0] }}
+              transition={{ duration: particle.duration, repeat: Infinity, delay: particle.delay }}
+              style={{ left: `${particle.left}%`, top: '100%' }}
             />
           ))}
         </div>
       </motion.div>
 
-      {/* ✅ OTP MODAL */}
-      <AnimatePresence>
-        {showOtpModal && (
-          <OtpModal
-            email={registeredEmail}
-            onVerified={handleOtpVerified}
-            onClose={() => setShowOtpModal(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* ✅ SUCCESS MODAL — sirf OTP verify ke baad dikhega */}
+      {/* ✅ SUCCESS MODAL */}
       <AnimatePresence>
         {success && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
