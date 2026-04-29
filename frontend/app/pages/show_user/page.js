@@ -7,9 +7,10 @@ import Link from 'next/link';
 import { jwtDecode } from 'jwt-decode';
 import { 
     Users, Mail, MapPin, Brain, Sparkles, User as UserIcon, Calendar, 
-    Info, Loader, AlertTriangle, Search, ChevronDown, ChevronUp, Clock, ArrowLeft
+    Info, Loader, AlertTriangle, Search, ChevronDown, ChevronUp, Clock, ArrowLeft, ShieldAlert
 } from 'lucide-react';
 import { useSocket } from '@/context/SocketContext';
+import VerifiedBadge from '../../components/VerifiedBadge';
 
 // --- Helper functions ---
 const formatTimeAgo = (dateString) => {
@@ -85,6 +86,9 @@ const UserCard = ({ user, onSkillClick, unreadCount }) => {
                         <div>
                             <h3 className="text-lg font-bold text-gray-900">{user.fullName || 'Unnamed User'}</h3>
                             <div className="flex items-center text-xs text-gray-500 mt-1"><Mail className="w-3 h-3 mr-2" /><span>{user.email}</span></div>
+                            <div className="mt-2">
+                                <VerifiedBadge status={user.verificationStatus || 'unverified'} />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -216,7 +220,22 @@ const UserListPage = () => {
                 Back to Home
             </motion.button>
             <div className="text-right">
-              {authLoading ? ( <div className="h-6 bg-gray-200 rounded-md w-48 animate-pulse ml-auto"></div> ) : loggedInUser ? ( <h2 className="text-xl font-semibold text-gray-700"> Hi, <span className="font-bold text-purple-600">{loggedInUser.fullName}!</span> </h2> ) : ( <p className="text-md text-gray-600"> Please{' '} <Link href="/pages/log_in" className="font-bold text-blue-600 hover:underline"> Login </Link>{' '} to connect with others. </p> )}
+              {authLoading ? ( <div className="h-6 bg-gray-200 rounded-md w-48 animate-pulse ml-auto"></div> ) : loggedInUser ? ( 
+                <div className="flex flex-col items-end gap-2">
+                  <h2 className="text-xl font-semibold text-gray-700"> Hi, <span className="font-bold text-purple-600">{loggedInUser.fullName}!</span> </h2>
+                  {(loggedInUser.verificationStatus === 'unverified' || loggedInUser.verificationStatus === 'rejected') && (
+                    <motion.button
+                      onClick={() => router.push('/pages/show_P')}
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold rounded-lg shadow-md hover:from-yellow-600 hover:to-orange-600 transition-all"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <ShieldAlert size={18} />
+                      Please Verify
+                    </motion.button>
+                  )}
+                </div>
+              ) : ( <p className="text-md text-gray-600"> Please{' '} <Link href="/pages/log_in" className="font-bold text-blue-600 hover:underline"> Login </Link>{' '} to connect with others. </p> )}
             </div>
         </div>
         

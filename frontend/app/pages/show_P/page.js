@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Lock, Camera, MapPin, Phone, Brain, Sparkles, Edit, Save, X, Calendar, Globe, LogIn } from 'lucide-react';
 import Link from 'next/link';
+import VerifiedBadge from '../../components/VerifiedBadge';
+import VideoUpload from '../../components/VideoUpload';
 
 const UserProfilePage = () => {
   const [userData, setUserData] = useState(null);
@@ -14,6 +16,8 @@ const UserProfilePage = () => {
   const [message, setMessage] = useState('');
   const [userId, setUserId] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState('unverified');
+  const [adminNote, setAdminNote] = useState(null);
 
   
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -37,6 +41,7 @@ const UserProfilePage = () => {
           setUserId(currentUserId);
           setIsAuthenticated(true);
           fetchUserData(currentUserId);
+          fetchVerificationStatus(currentUserId);
         } else {
           handleAuthError();
         }
@@ -63,6 +68,7 @@ const UserProfilePage = () => {
       if (data.status === 'success') {
         setUserData(data.data.user);
         setEditData(data.data.user);
+        setVerificationStatus(data.data.user.verificationStatus || 'unverified');
       } else {
         setMessage('Failed to load user data');
       }
@@ -71,6 +77,25 @@ const UserProfilePage = () => {
       setMessage('Error connecting to server');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVerificationStatus = async (id) => {
+    const token = localStorage.getItem('skill-token');
+    if (!token) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/verification/my-status`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        setVerificationStatus(data.data.verificationStatus || 'unverified');
+        if (data.data.latestVerification?.adminNote) {
+          setAdminNote(data.data.latestVerification.adminNote);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching verification status:', error);
     }
   };
 
@@ -271,53 +296,15 @@ const UserProfilePage = () => {
               </div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">{userData.fullName}</h2>
               <p className="text-gray-600 mb-4">{userData.email}</p>
-              <div className="space-y-3 text-sm">
+<div className="space-y-3 text-sm">
                 <div className="flex items-center justify-center gap-2 text-gray-600"><MapPin className="w-4 h-4" /><span>{userData.city}, {userData.state}</span></div>
                 {userData.mobile && (<div className="flex items-center justify-center gap-2 text-gray-600"><Phone className="w-4 h-4" /><span>{userData.mobile}</span></div>)}
                 <div className="flex items-center justify-center gap-2 text-gray-600"><Calendar className="w-4 h-4" /><span>Born: {formatDate(userData.dateOfBirth)}</span></div>
               </div>
             </div>
-          </motion.div>
+</motion.div>
 
           <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-2xl shadow-xl p-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center"><User className="mr-3 text-blue-500" /> Basic Information</h3>
-              {editMode ? (
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div><label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label><input type="text" value={editData.fullName || ''} onChange={(e) => setEditData({...editData, fullName: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900" /></div>
-                  <div><label className="block text-sm font-semibold text-gray-700 mb-2">Email</label><input type="email" value={editData.email || ''} onChange={(e) => setEditData({...editData, email: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900" /></div>
-                  <div><label className="block text-sm font-semibold text-gray-700 mb-2">Gender</label><select value={editData.gender || ''} onChange={(e) => setEditData({...editData, gender: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900"><option value="">Select Gender</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option><option value="prefer-not-to-say">Prefer not to say</option></select></div>
-                  <div><label className="block text-sm font-semibold text-gray-700 mb-2">Date of Birth</label><input type="date" value={editData.dateOfBirth ? editData.dateOfBirth.split('T')[0] : ''} onChange={(e) => setEditData({...editData, dateOfBirth: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900" /></div>
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div><span className="text-sm font-semibold text-gray-500">Full Name</span><p className="text-lg text-gray-800">{userData.fullName}</p></div>
-                  <div><span className="text-sm font-semibold text-gray-500">Email</span><p className="text-lg text-gray-800">{userData.email}</p></div>
-                  <div><span className="text-sm font-semibold text-gray-500">Gender</span><p className="text-lg text-gray-800 capitalize">{userData.gender || 'Not specified'}</p></div>
-                  <div><span className="text-sm font-semibold text-gray-500">Date of Birth</span><p className="text-lg text-gray-800">{formatDate(userData.dateOfBirth)}</p></div>
-                </div>
-              )}
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-xl p-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center"><MapPin className="mr-3 text-green-500" /> Location</h3>
-              {editMode ? (
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div><label className="block text-sm font-semibold text-gray-700 mb-2">City</label><input type="text" value={editData.city || ''} onChange={(e) => setEditData({...editData, city: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 text-gray-900" /></div>
-                  <div><label className="block text-sm font-semibold text-gray-700 mb-2">State</label><input type="text" value={editData.state || ''} onChange={(e) => setEditData({...editData, state: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 text-gray-900" /></div>
-                  <div><label className="block text-sm font-semibold text-gray-700 mb-2">Country</label><input type="text" value={editData.country || ''} onChange={(e) => setEditData({...editData, country: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 text-gray-900" /></div>
-                  <div><label className="block text-sm font-semibold text-gray-700 mb-2">ZIP Code</label><input type="text" value={editData.zipCode || ''} onChange={(e) => setEditData({...editData, zipCode: e.target.value})} className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 text-gray-900" /></div>
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div><span className="text-sm font-semibold text-gray-500">City</span><p className="text-lg text-gray-800">{userData.city}</p></div>
-                  <div><span className="text-sm font-semibold text-gray-500">State</span><p className="text-lg text-gray-800">{userData.state}</p></div>
-                  <div><span className="text-sm font-semibold text-gray-500">Country</span><p className="text-lg text-gray-800">{userData.country}</p></div>
-                  <div><span className="text-sm font-semibold text-gray-500">ZIP Code</span><p className="text-lg text-gray-800">{userData.zipCode || 'Not provided'}</p></div>
-                </div>
-              )}
-            </div>
-
             <div className="bg-white rounded-2xl shadow-xl p-8">
               <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center"><Brain className="mr-3 text-purple-500" /> Skills</h3>
               <div className="space-y-6">
@@ -351,6 +338,52 @@ const UserProfilePage = () => {
                 </div>
               </div>
             </div>
+
+            {(verificationStatus === 'unverified' || verificationStatus === 'rejected') && (
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-gray-800 flex items-center"><Sparkles className="mr-3 text-yellow-500" /> Skill Verification</h3>
+                  <VerifiedBadge status={verificationStatus} />
+                </div>
+                {verificationStatus === 'rejected' && adminNote && (
+                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-red-700 font-medium">Rejection Reason:</p>
+                    <p className="text-red-600">{adminNote}</p>
+                  </div>
+                )}
+                <VideoUpload 
+                  userSkills={userData.skillsToTeach} 
+                  onUploadSuccess={() => {
+                    setVerificationStatus('pending');
+                    setAdminNote(null);
+                  }}
+                />
+              </div>
+            )}
+
+            {verificationStatus === 'verified' && (
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-gray-800 flex items-center"><Sparkles className="mr-3 text-yellow-500" /> Skill Verification</h3>
+                  <VerifiedBadge status={verificationStatus} />
+                </div>
+                <p className="text-gray-600">
+                  Your skill <span className="font-semibold text-purple-600">{userData.verifiedSkill || userData.skillsToTeach?.[0]?.name}</span> has been verified!
+                </p>
+              </div>
+            )}
+
+            {verificationStatus === 'pending' && (
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-gray-800 flex items-center"><Sparkles className="mr-3 text-yellow-500" /> Skill Verification</h3>
+                  <VerifiedBadge status={verificationStatus} />
+                </div>
+                <p className="text-gray-600">
+                  Your verification is under review. We'll notify you once it's approved.
+                </p>
+              </div>
+            )}
 
             <div className="bg-white rounded-2xl shadow-xl p-8">
               <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center"><Sparkles className="mr-3 text-orange-500" /> About & Contact</h3>

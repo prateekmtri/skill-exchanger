@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import { useSocket } from '@/context/SocketContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Bell, UserCircle, LogOut, Settings, LayoutDashboard } from 'lucide-react';
+import { Menu, X, Bell, UserCircle, LogOut, Settings, LayoutDashboard, Crown } from 'lucide-react';
 
 const getInitials = (name = '') => {
     if (!name) return '?';
@@ -123,6 +123,9 @@ export default function Navbar() {
                                                     <p className="text-xs text-gray-500 truncate">{loggedInUser.email}</p>
                                                 </div>
                                                 <Link href={`/pages/show_P`} onClick={() => setIsProfileMenuOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md mt-1"><UserCircle size={16}/> My Profile</Link>
+                                                {loggedInUser.isAdmin && (
+                                                    <Link href="/pages/admin" onClick={() => setIsProfileMenuOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-purple-700 hover:bg-purple-50 rounded-md"><Crown size={16}/> Admin Dashboard</Link>
+                                                )}
                                                 <Link href="/pages/account-settings" onClick={() => setIsProfileMenuOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"><Settings size={16}/> Settings</Link>
                                                 <hr className="my-1"/>
                                                 <button onClick={handleLogout} className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"><LogOut size={16}/> Logout</button>

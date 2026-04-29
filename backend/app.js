@@ -12,7 +12,8 @@ const { Server } = require("socket.io");
 
 // Apne route files ko import karein
 const userRoutes = require('./routes/UserRoutes');
-const chatRoutes = require('./routes/chatRoute'); 
+const chatRoutes = require('./routes/chatRoute');
+const verificationRoutes = require('./routes/verificationRoutes'); 
 
 // Hamare naye socket handler ko import karein
 const initializeSocket = require('./socket/socket');
@@ -42,7 +43,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // API routes
 app.use('/api', userRoutes);
-app.use('/api', chatRoutes); 
+app.use('/api', chatRoutes);
+app.use('/api', verificationRoutes); 
 
 // Basic test route
 app.get('/', (req, res) => {

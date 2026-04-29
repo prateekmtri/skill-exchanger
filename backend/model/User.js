@@ -93,6 +93,23 @@ const userSchema = new mongoose.Schema({
   isVerified: {
     type: Boolean,
     default: true
+  },
+
+  // Skill Verification
+  verificationStatus: {
+    type: String,
+    enum: ['unverified', 'pending', 'verified'],
+    default: 'unverified'
+  },
+  verifiedSkill: {
+    type: String,
+    default: null
+  },
+
+  // Admin
+  isAdmin: {
+    type: Boolean,
+    default: false
   }
 
 }, {

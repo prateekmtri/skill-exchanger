@@ -35,3 +35,28 @@ exports.protect = async (req, res, next) => {
     });
   }
 };
+
+exports.isAdmin = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'You are not logged in'
+      });
+    }
+
+    if (!req.user.isAdmin) {
+      return res.status(403).json({
+        status: 'fail',
+        message: 'Access denied. Admin only.'
+      });
+    }
+
+    next();
+  } catch (error) {
+    res.status(403).json({
+      status: 'fail',
+      message: 'Access denied'
+    });
+  }
+};
