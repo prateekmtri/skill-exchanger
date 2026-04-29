@@ -110,6 +110,9 @@ const ProfileCreationPage = () => {
     }
   };
 
+  const [customSkillTeach, setCustomSkillTeach] = useState('');
+  const [customSkillLearn, setCustomSkillLearn] = useState('');
+
   const handleSkillToggle = (skill, type) => {
     if (type === 'teach') {
       setFormData(prev => ({
@@ -125,6 +128,28 @@ const ProfileCreationPage = () => {
           ? prev.skillsToLearn.filter(s => s !== skill)
           : [...prev.skillsToLearn, skill]
       }));
+    }
+  };
+
+  const addCustomSkill = (type) => {
+    if (type === 'teach' && customSkillTeach.trim()) {
+      const skillName = customSkillTeach.trim();
+      if (!formData.skillsToTeach.some(s => s.name.toLowerCase() === skillName.toLowerCase())) {
+        setFormData(prev => ({
+          ...prev,
+          skillsToTeach: [...prev.skillsToTeach, { name: skillName, level: 'Intermediate' }]
+        }));
+      }
+      setCustomSkillTeach('');
+    } else if (type === 'learn' && customSkillLearn.trim()) {
+      const skillName = customSkillLearn.trim();
+      if (!formData.skillsToLearn.some(s => s.toLowerCase() === skillName.toLowerCase())) {
+        setFormData(prev => ({
+          ...prev,
+          skillsToLearn: [...prev.skillsToLearn, skillName]
+        }));
+      }
+      setCustomSkillLearn('');
     }
   };
 
@@ -288,20 +313,92 @@ const ProfileCreationPage = () => {
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center"><Brain className="mr-2 text-purple-500" /> Skills You Can Teach</h3>
                 {errors.skillsToTeach && <p className="text-red-500 text-sm mb-2">{errors.skillsToTeach}</p>}
+                <div className="flex gap-2 mb-4">
+                  <input
+                    type="text"
+                    value={customSkillTeach}
+                    onChange={(e) => setCustomSkillTeach(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSkill('teach'))}
+                    className="flex-grow px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-gray-900"
+                    placeholder="Add a custom skill..."
+                  />
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => addCustomSkill('teach')}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+                  >
+                    Add
+                  </motion.button>
+                </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   {predefinedSkills.map(skill => (
                     <motion.button key={skill} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleSkillToggle(skill, 'teach')} className={`p-3 rounded-xl text-sm font-medium transition-all ${formData.skillsToTeach.some(s => s.name === skill) ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'}`}>{skill}</motion.button>
                   ))}
                 </div>
+                {formData.skillsToTeach.filter(s => !predefinedSkills.includes(s.name)).length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-semibold text-gray-600 mb-2">Your Custom Skills</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.skillsToTeach.filter(s => !predefinedSkills.includes(s.name)).map(skill => (
+                        <motion.button
+                          key={skill.name}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleSkillToggle(skill.name, 'teach')}
+                          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl text-sm font-medium shadow-lg"
+                        >
+                          {skill.name} ×
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center"><Sparkles className="mr-2 text-blue-500" /> Skills You Want to Learn</h3>
                 {errors.skillsToLearn && <p className="text-red-500 text-sm mb-2">{errors.skillsToLearn}</p>}
+                <div className="flex gap-2 mb-4">
+                  <input
+                    type="text"
+                    value={customSkillLearn}
+                    onChange={(e) => setCustomSkillLearn(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSkill('learn'))}
+                    className="flex-grow px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900"
+                    placeholder="Add a custom skill..."
+                  />
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => addCustomSkill('learn')}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+                  >
+                    Add
+                  </motion.button>
+                </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   {predefinedSkills.map(skill => (
                     <motion.button key={skill} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleSkillToggle(skill, 'learn')} className={`p-3 rounded-xl text-sm font-medium transition-all ${formData.skillsToLearn.includes(skill) ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'}`}>{skill}</motion.button>
                   ))}
                 </div>
+                {formData.skillsToLearn.filter(s => !predefinedSkills.includes(s)).length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-semibold text-gray-600 mb-2">Your Custom Skills</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.skillsToLearn.filter(s => !predefinedSkills.includes(s)).map(skill => (
+                        <motion.button
+                          key={skill}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleSkillToggle(skill, 'learn')}
+                          className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl text-sm font-medium shadow-lg"
+                        >
+                          {skill} ×
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
