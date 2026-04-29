@@ -145,7 +145,7 @@ export default function Home() {
                             <p className="text-sm text-gray-500">Real Success Story</p>
                           </div>
                           <p className="text-lg text-gray-700 leading-relaxed">"{currentStory}"</p>
-                          <Link href="/pages/create_P">
+                          <Link href="">
                               <motion.button whileHover={{ scale: 1.03, boxShadow: "0 10px 25px -5px rgba(99, 102, 241, 0.4)" }} whileTap={{ scale: 0.98 }} className="mt-6 px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg font-medium transition-all duration-300 shadow-md">
                                 Start Your Journey
                               </motion.button>

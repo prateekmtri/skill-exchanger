@@ -198,7 +198,7 @@ const UserListPage = () => {
   const finalFilteredUsers = useMemo(() => {
     if (!filteredUsers) return [];
     return filteredUsers.filter(user => {
-      const matchesSearchTerm = (user.fullName || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearchTerm = (user.skillsToTeach || []).some(s => s.name.toLowerCase().includes(searchTerm.toLowerCase())) || (user.skillsToLearn || []).some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesSkillFilter = skillFilter 
           ? (user.skillsToTeach || []).some(s => s.name === skillFilter) || (user.skillsToLearn || []).includes(skillFilter)
           : true;
@@ -251,7 +251,7 @@ const UserListPage = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                 <input 
                   type="text" 
-                  placeholder="Search by name..." 
+                  placeholder="Search by skill..." 
                   value={searchTerm} 
                   onChange={(e) => setSearchTerm(e.target.value)} 
                   // --- YAHAN FIX HAI: 'text-gray-900' add kiya gaya hai ---
