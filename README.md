@@ -446,12 +446,9 @@ Found a bug? Have a great idea? [Open an issue](https://github.com/prateekmtri/s
 <table>
   <tr>
     <td align="center">
-      <strong>Prateek Mani Tripathi</strong><br/>
-      <a href="https://github.com/prateekmtri">@prateekmtri</a> · 
-      <a href="mailto:prateek1tri2@gmail.com">Email</a>
+      <a href="https://github.com/prateekmtri">@prateekmtri</a>
     </td>
     <td align="center">
-      <strong>Ekta Verma</strong><br/>
       Team Member
     </td>
   </tr>
@@ -479,7 +476,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
  
 | Channel | Link |
 |---------|------|
-| 📧 Email | support@skillexchange.com |
+| 📧 Email | prateek1tri2@gmail.com |
 | 🤖 In-App Chatbot | Available on the platform |
 | 🐛 GitHub Issues | [Report a bug](https://github.com/prateekmtri/skill-exchanger/issues) |
  
@@ -493,7 +490,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
  
 <br/>
  
-Made with ❤️ by [Prateek Mani Tripathi](https://github.com/prateekmtri) & [Ekta Verma](https://github.com/prateekmtri)
+Made with ❤️ by the Skill Exchanger Team
  
 <br/>
  
