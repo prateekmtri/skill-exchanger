@@ -83,7 +83,7 @@ const ProfileCreationPage = () => {
         if (formData.skillsToLearn.length === 0) newErrors.skillsToLearn = 'Please select at least one skill to learn';
         break;
       case 4:
-        if (formData.bio.trim().length < 50) newErrors.bio = 'Bio must be at least 50 characters';
+        if (!formData.bio.trim()) newErrors.bio = 'Bio is required';
         break;
     }
     setErrors(newErrors);
