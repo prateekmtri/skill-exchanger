@@ -20,6 +20,8 @@ export default function Navbar() {
     const [authLoading, setAuthLoading] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const notificationRef = useRef(null);
     
     const { unreadCounts } = useSocket();
     const router = useRouter();
@@ -73,6 +75,16 @@ export default function Navbar() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        const handleClickOutsideNotification = (event) => {
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                setShowNotifications(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutsideNotification);
+        return () => document.removeEventListener("mousedown", handleClickOutsideNotification);
+    }, []);
+
     const NavLinks = ({ isMobile = false }) => (
         <div className={isMobile ? "flex flex-col space-y-4 p-4" : "hidden md:flex items-center space-x-8"}>
             <Link href="/" onClick={() => isMobile && setIsMobileMenuOpen(false)} className="text-gray-600 hover:text-indigo-600 transition-colors font-medium">Home</Link>
@@ -100,14 +112,73 @@ export default function Navbar() {
                         <div className="h-10 w-24 bg-gray-200 rounded-md animate-pulse"></div>
                     ) : loggedInUser ? (
                         <>
-                            <Link href="/pages/show_user" className="relative p-2 rounded-full hover:bg-gray-100">
-                                <Bell size={22} className="text-gray-600"/>
-                                {totalUnread > 0 && (
-                                    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-pulse">
-                                        {totalUnread > 9 ? '9+' : totalUnread}
-                                    </span>
-                                )}
-                            </Link>
+                            <div className="relative" ref={notificationRef}>
+                                <button onClick={() => setShowNotifications(!showNotifications)} className="relative p-2 rounded-full hover:bg-gray-100 focus:outline-none transition-colors">
+                                    <Bell size={22} className={showNotifications ? "text-indigo-600" : "text-gray-600"}/>
+                                    {totalUnread > 0 && (
+                                        <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                                            {totalUnread > 9 ? '9+' : totalUnread}
+                                        </span>
+                                    )}
+                                </button>
+                                
+                                <AnimatePresence>
+                                    {showNotifications && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden"
+                                        >
+                                            <div className="p-4 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
+                                                <h3 className="font-bold text-gray-800">Notifications</h3>
+                                                {totalUnread > 0 && (
+                                                    <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full font-semibold">
+                                                        {totalUnread} New
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="max-h-[400px] overflow-y-auto">
+                                                {Object.keys(unreadCounts || {}).length > 0 ? (
+                                                    Object.entries(unreadCounts).map(([senderId, count]) => (
+                                                        count > 0 && (
+                                                            <Link 
+                                                                key={senderId} 
+                                                                href={`/pages/chat/${senderId}`}
+                                                                onClick={() => setShowNotifications(false)}
+                                                                className="flex items-center gap-4 p-4 hover:bg-indigo-50 transition-colors border-b border-gray-50 last:border-0"
+                                                            >
+                                                                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                                                    <UserCircle size={24} />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <p className="text-sm font-semibold text-gray-800">New message</p>
+                                                                    <p className="text-xs text-gray-500">You have {count} unread message{count > 1 ? 's' : ''}</p>
+                                                                </div>
+                                                                <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
+                                                            </Link>
+                                                        )
+                                                    ))
+                                                ) : (
+                                                    <div className="p-8 text-center">
+                                                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                            <Bell size={20} className="text-gray-400" />
+                                                        </div>
+                                                        <p className="text-sm text-gray-500 font-medium">No new notifications</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <Link 
+                                                href="/pages/show_user" 
+                                                onClick={() => setShowNotifications(false)}
+                                                className="block p-3 text-center text-xs font-bold text-indigo-600 hover:bg-gray-50 transition-colors bg-gray-50/30"
+                                            >
+                                                View all users
+                                            </Link>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
                             <div className="relative" ref={profileMenuRef}>
                                 <button onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className="flex items-center space-x-2">
                                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center font-bold text-lg border-2 border-white shadow-sm">
