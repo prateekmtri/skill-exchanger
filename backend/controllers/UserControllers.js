@@ -15,7 +15,7 @@ const safeJSON = (str, fallback = null) => {
 // ---------- JWT Token Generator ----------
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'your_jwt_secret', {
-    expiresIn: process.env.JWT_EXPIRE || '7d',
+    expiresIn: process.env.JWT_EXPIRE || '30d',
   });
 };
 

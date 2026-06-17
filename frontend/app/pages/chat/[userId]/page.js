@@ -81,7 +81,13 @@ const ChatPage = () => {
 
             newSocket.on('new_message', (message) => {
                 if (message.senderId === receiverId || message.senderId === decoded.id) {
-                    setMessages((prev) => [...prev, message]);
+                    setMessages((prev) => {
+                        if (message.senderId === decoded.id) {
+                            const filtered = prev.filter(m => !m._id?.startsWith('temp-'));
+                            return [...filtered, message];
+                        }
+                        return [...prev, message];
+                    });
                     if (message.senderId === receiverId) {
                         newSocket.emit('mark_messages_as_seen', { senderId: decoded.id, receiverId });
                     }
@@ -113,6 +119,14 @@ const ChatPage = () => {
     if (newMessage.trim() === '' || !socket || !loggedInUser || !isConnected) return;
     const messageData = { senderId: loggedInUser.id, receiverId, content: newMessage };
     socket.emit('private_message', messageData);
+    const optimisticMessage = {
+      senderId: loggedInUser.id,
+      receiverId,
+      content: newMessage,
+      createdAt: new Date().toISOString(),
+      _id: `temp-${Date.now()}`
+    };
+    setMessages((prev) => [...prev, optimisticMessage]);
     setNewMessage('');
     setShowEmojiPicker(false);
   };
