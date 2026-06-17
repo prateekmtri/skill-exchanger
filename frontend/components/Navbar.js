@@ -23,11 +23,9 @@ export default function Navbar() {
     const [showNotifications, setShowNotifications] = useState(false);
     const notificationRef = useRef(null);
     
-    const { unreadCounts } = useSocket();
+    const { unreadCounts, totalUnread } = useSocket();
     const router = useRouter();
     const profileMenuRef = useRef(null);
-
-    const totalUnread = Object.values(unreadCounts || {}).reduce((sum, count) => sum + count, 0);
 
     useEffect(() => {
         const token = localStorage.getItem('skill-token');

@@ -42,7 +42,7 @@ export const SocketProvider = ({ children }) => {
         if (loggedInUser) {
             console.log('Connecting socket for user:', loggedInUser._id);
             
-            const newSocket = io('https://skill-exchanger.onrender.com', {
+            const newSocket = io(process.env.NEXT_PUBLIC_API_BASE_URL, {
                 transports: ['websocket', 'polling'],
                 timeout: 20000,
                 forceNew: false,
@@ -116,6 +116,7 @@ export const SocketProvider = ({ children }) => {
         socket,
         unreadCounts,
         clearUnreadFrom,
+        totalUnread: Object.values(unreadCounts).reduce((sum, count) => sum + count, 0),
     }), [socket, unreadCounts, clearUnreadFrom]);
 
     return (

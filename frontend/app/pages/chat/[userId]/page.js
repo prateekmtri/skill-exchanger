@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { io } from 'socket.io-client';
 import { jwtDecode } from 'jwt-decode';
+import { useSocket } from '@/context/SocketContext';
 import { Send, ArrowLeft, Check, CheckCheck, Smile, Loader } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import EmojiPicker from 'emoji-picker-react';
@@ -26,6 +27,7 @@ const ChatPage = () => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
 
+  const { clearUnreadFrom } = useSocket();
   const router = useRouter();
   const params = useParams();
   const receiverId = params.userId;
@@ -64,7 +66,10 @@ const ChatPage = () => {
             const msgData = await msgRes.json();
 
             if (userData.status === 'success') setChatPartner(userData.data.user);
-            if (msgData.status === 'success') setMessages(msgData.data.messages);
+            if (msgData.status === 'success') {
+                setMessages(msgData.data.messages);
+                clearUnreadFrom(receiverId);
+            }
             
             setIsLoading(false);
 
@@ -76,6 +81,7 @@ const ChatPage = () => {
                 setIsConnected(true);
                 newSocket.emit('addUser', decoded.id);
                 newSocket.emit('mark_messages_as_seen', { senderId: decoded.id, receiverId });
+                clearUnreadFrom(receiverId);
             });
             newSocket.on('disconnect', () => setIsConnected(false));
 
